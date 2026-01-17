@@ -7,6 +7,9 @@ from importer.services import import_products_from_yaml
 from products.models import Product
 from products.serializers import ProductSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from orders.models import Order, OrderItem
+from orders.serializers import OrderSerializer, OrderItemSerializer
+
 
 # Create your views here.
 
@@ -27,7 +30,6 @@ class ImportProductsView(APIView):
         return Response({'status': 'import started'})
         
 
-
 class ProductListView(ListAPIView):
     serializer_class = ProductSerializer
     
@@ -45,3 +47,30 @@ class ProductListView(ListAPIView):
 
         return qs.distinct()
     
+
+class CartView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        cart, _ = Order.objects.get_or_create(
+            user=request.user,
+            status='cart'
+        )
+        serializer = OrderSerializer(cart)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        cart, _ = Order.objects.get_or_create(
+            user=request.user,
+            status='cart'
+        )
+
+        serializer = OrderItemSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        OrderItem.objects.create(
+            order=cart,
+            **serializer.validated_data
+        )
+
+        return Response({'status': 'item added'})
