@@ -22,7 +22,7 @@ class Order(models.Model):
         choices=STATUS_CHOICES, 
         default='cart'
     )
-    crated_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'Order {self.id} - {self.user.username} - {self.status}'

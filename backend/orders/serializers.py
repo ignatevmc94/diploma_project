@@ -21,7 +21,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'status', 'items']
+        fields = ['id', 'status', 'items', 'created_at']
 
 
 class OrderConfirmSerializer(serializers.Serializer):

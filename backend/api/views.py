@@ -106,3 +106,12 @@ class OrderConfirmView(APIView):
 
         return Response({'status': 'order confirmed'})
 
+
+class OrderListView(ListAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Order.objects.filter(
+            user=self.request.user
+        ).exclude(status='cart')
