@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import Product, ProductInfo, ProductParameter, Parameter
+from .models import Product, ProductInfo, ProductParameter, Parameter, Category
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['name']
 
 
 class ParameterSerializer(serializers.ModelSerializer):
@@ -33,9 +39,8 @@ class ProductInfoSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    product_infos = ProductInfoSerializer(
-        many=True
-    )
+    category = CategorySerializer()
+    product_infos = ProductInfoSerializer(many=True)
 
     class Meta:
         model = Product
