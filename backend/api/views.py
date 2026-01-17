@@ -6,12 +6,13 @@ from rest_framework.permissions import AllowAny
 from importer.services import import_products_from_yaml
 from products.models import Product
 from products.serializers import ProductSerializer
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 # Create your views here.
 
 
 class ImportProductsView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
 
     def post(self, request):
         file_path = request.data.get('file_path')
