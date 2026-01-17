@@ -4,7 +4,7 @@ from shops.models import Shop, Category
 from products.models import Product, ProductInfo, Parameter, ProductParameter
 
 
-def impor_products_from_yaml(file_path: str):
+def import_products_from_yaml(file_path: str):
     with open(file_path, encoding='utf-8') as f:
         data = yaml.safe_load(f)
 
