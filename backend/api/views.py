@@ -28,6 +28,19 @@ class ImportProductsView(APIView):
 
 
 class ProductListView(ListAPIView):
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
-        
+    
+    def get_queryset(self):
+        qs = Product.objects.all()
+
+        shop_id = self.request.query_params.get('shop')
+        category_id = self.request.query_params.get('category')
+
+        if shop_id:
+            qs = qs.filter(product_infos__shop_id=shop_id)
+
+        if category_id:
+            qs = qs.filter(category_id=category_id)
+
+        return qs.distinct()
+    
