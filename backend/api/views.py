@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from importer.services import import_products_from_yaml
@@ -26,7 +27,7 @@ class ImportProductsView(APIView):
         
 
 
-class ProductListView(APIView):
+class ProductListView(ListAPIView):
     queryset = Product.objects.all()
-    serializer = ProductSerializer
+    serializer_class = ProductSerializer
         

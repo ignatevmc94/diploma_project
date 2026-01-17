@@ -35,6 +35,7 @@ def import_products_from_yaml(file_path):
             shop=shop,
             defaults={
                 'price': item['price_rrc'],
+                'price_rrc': item['price_rrc'],
                 'quantity': item['quantity']
             }
         )

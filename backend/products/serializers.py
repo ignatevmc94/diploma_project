@@ -18,7 +18,6 @@ class ProductParameterSerializer(serializers.ModelSerializer):
 
 class ProductInfoSerializer(serializers.ModelSerializer):
     parameters = ProductParameterSerializer(
-        source='productparameter_set',
         many=True
     )
 
@@ -26,7 +25,6 @@ class ProductInfoSerializer(serializers.ModelSerializer):
         model = ProductInfo
         fields = [
             'id',
-            'model',
             'price',
             'price_rrc',
             'quantity',
@@ -36,7 +34,6 @@ class ProductInfoSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     product_infos = ProductInfoSerializer(
-        source='productinfo_set',
         many=True
     )
 

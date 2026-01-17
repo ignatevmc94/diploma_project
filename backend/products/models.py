@@ -18,7 +18,7 @@ class Product(models.Model):
 class ProductInfo(models.Model):
     product = models.ForeignKey(
         Product, 
-        related_name='infos', 
+        related_name='product_infos', 
         on_delete=models.CASCADE
     )
     shop = models.ForeignKey(
@@ -28,7 +28,8 @@ class ProductInfo(models.Model):
     )
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-
+    price_rrc = models.DecimalField(max_digits=10, decimal_places=2)
+    
     class Meta:
         unique_together = ('product', 'shop')
 
