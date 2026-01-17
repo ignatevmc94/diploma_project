@@ -3,7 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from importer.services import import_products_from_yaml
-
+from products.models import Product
+from products.serializers import ProductSerializer
 
 # Create your views here.
 
@@ -25,6 +26,7 @@ class ImportProductsView(APIView):
         
 
 
-
-
-
+class ProductListView(APIView):
+    queryset = Product.objects.all()
+    serializer = ProductSerializer
+        
