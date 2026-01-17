@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from contacts.models import Contact
 from .models import Order, OrderItem
 from products.models import ProductInfo
 
@@ -21,3 +23,15 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'status', 'items']
 
+
+class OrderConfirmSerializer(serializers.Serializer):
+    contact_id = serializers.IntegerField()
+
+    def validate_contact_id(self, value):
+        user = self.context['request'].user
+
+        if not Contact.objects.filter(id=value, user=user).exists():
+            raise serializers.ValidationError("Contact not found")
+        
+        return value
+    

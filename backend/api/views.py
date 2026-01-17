@@ -8,7 +8,7 @@ from products.models import Product
 from products.serializers import ProductSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from orders.models import Order, OrderItem
-from orders.serializers import OrderSerializer, OrderItemSerializer
+from orders.serializers import OrderSerializer, OrderItemSerializer, OrderConfirmSerializer
 
 
 # Create your views here.
@@ -74,3 +74,35 @@ class CartView(APIView):
         )
 
         return Response({'status': 'item added'})
+
+
+class OrderConfirmView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = OrderConfirmSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            order = Order.objects.get(
+                user=request.user,
+                status='cart'
+            )
+        except Order.DoesNotExist:
+            return Response(
+                {'error': 'No active cart found'}, 
+                status=400
+            )
+        if not order.items.exists():
+            return Response(
+                {'error': 'Cart is empty'}, 
+                status=400
+            )
+        order.status = 'new'
+        order.save()
+
+        return Response({'status': 'order confirmed'})
+
