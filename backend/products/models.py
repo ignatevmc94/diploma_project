@@ -33,6 +33,9 @@ class ProductInfo(models.Model):
     class Meta:
         unique_together = ('product', 'shop')
 
+    def __str__(self):
+        return f"{self.product.name} - {self.shop.name} - {self.price}"
+
 
 class Parameter(models.Model):
     name = models.CharField(max_length=255)
