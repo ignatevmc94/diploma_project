@@ -9,6 +9,7 @@ from products.serializers import ProductSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from orders.models import Order, OrderItem
 from orders.serializers import OrderSerializer, OrderItemSerializer, OrderConfirmSerializer
+from orders.tasks import send_order_confirmation_email
 
 
 # Create your views here.
@@ -103,6 +104,8 @@ class OrderConfirmView(APIView):
             )
         order.status = 'new'
         order.save()
+
+        send_order_confirmation_email.delay(order.id)
 
         return Response({'status': 'order confirmed'})
 
