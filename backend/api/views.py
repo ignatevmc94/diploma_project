@@ -86,6 +86,26 @@ class CartView(APIView):
         return Response({'status': 'item added'})
 
 
+class OrderCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        cart = Order.objects.filter(
+            user=request.user,
+            status='cart'
+        ).first()
+
+        if not cart or not cart.items.exists():
+            return Response(
+                {'error': 'Cart is empty'},
+                status=400
+            )
+        cart.status = 'new'
+        cart.save()
+
+        return Response({'status': 'Order created'})
+        
+
 class OrderConfirmView(APIView):
     permission_classes = [IsAuthenticated]
 
