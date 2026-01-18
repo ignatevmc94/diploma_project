@@ -7,7 +7,6 @@ from orders.models import Order
 @shared_task
 def send_order_confirmation_email(order_id):
     order = Order.objects.get(id=order_id)
-
     send_mail(
         subject=f'Order {order.id} confirmed',
         message=f'Your order {order.id} has been confirmed.',
