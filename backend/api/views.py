@@ -69,11 +69,6 @@ class CartView(APIView):
         serializer = OrderItemSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # OrderItem.objects.create(
-        #     order=cart,
-        #     **serializer.validated_data
-        # )
-
         item, created = OrderItem.objects.get_or_create(
             order=cart,
             product_info=serializer.validated_data['product_info'],
@@ -103,15 +98,16 @@ class OrderConfirmView(APIView):
                 user=request.user,
                 status='new'
             ).order_by('-created_at').first()
+            
+            order.status = 'confirmed'
+            order.save()
 
-        except not order:
+        except:
             return Response(
                 {'error': 'No new orders found'}, 
                 status=400
             )
-
-        order.status = 'confirmed'
-        order.save()
+            
         try:
             send_order_confirmation_email.delay(order.id)
         except Exception as e:
