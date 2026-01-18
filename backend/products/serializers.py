@@ -26,10 +26,12 @@ class ProductInfoSerializer(serializers.ModelSerializer):
     parameters = ProductParameterSerializer(
         many=True
     )
+    shop = serializers.StringRelatedField()
 
     class Meta:
         model = ProductInfo
         fields = [
+            'shop',
             'id',
             'price',
             'price_rrc',
