@@ -1,5 +1,4 @@
-from django.shortcuts import render
-from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
@@ -12,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from orders.models import Order, OrderItem
 from orders.serializers import OrderSerializer, OrderItemSerializer, OrderConfirmSerializer
 from orders.tasks import send_order_confirmation_email
-from accounts.serializers import RegisterSerializer
+from accounts.serializers import RegisterSerializer, LoginSerializer
 
 
 # Create your views here.
@@ -165,3 +164,22 @@ class RegisterView(APIView):
             },
             status=status.HTTP_201_CREATED
         )
+    
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data['user']
+
+        token, _ = Token.objects.get_or_create(user=user)
+
+        return Response({
+                'token': token.key
+        })
+    
+
+    

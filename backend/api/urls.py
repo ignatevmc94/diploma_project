@@ -1,14 +1,14 @@
 from django.urls import path
 from .views import (CartView, ImportProductsView, OrderListView, 
                     ProductListView, OrderCreateView, OrderConfirmView, 
-                    RegisterView)
+                    RegisterView, LoginView)
 from rest_framework.authtoken.views import obtain_auth_token
 
 
 urlpatterns = [
     path('import/', ImportProductsView.as_view()),
     path('products/', ProductListView.as_view()),
-    path('token/', obtain_auth_token),
+    path('login/', LoginView.as_view()),
     path('register/', RegisterView.as_view()),
     path('cart/', CartView.as_view()),
     path('orders/', OrderListView.as_view()),
