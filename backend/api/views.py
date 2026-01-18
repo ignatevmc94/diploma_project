@@ -69,10 +69,21 @@ class CartView(APIView):
         serializer = OrderItemSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        OrderItem.objects.create(
+        # OrderItem.objects.create(
+        #     order=cart,
+        #     **serializer.validated_data
+        # )
+
+        item, created = OrderItem.objects.get_or_create(
             order=cart,
-            **serializer.validated_data
+            product_info=serializer.validated_data['product_info'],
+            defaults={
+                'quantity': serializer.validated_data['quantity']
+            }
         )
+        if not created:
+            item.quantity += serializer.validated_data['quantity']
+            item.save()
 
         return Response({'status': 'item added'})
 
@@ -88,24 +99,23 @@ class OrderConfirmView(APIView):
         serializer.is_valid(raise_exception=True)
 
         try:
-            order = Order.objects.get(
+            order = Order.objects.filter(
                 user=request.user,
-                status='cart'
-            )
-        except Order.DoesNotExist:
-            return Response(
-                {'error': 'No active cart found'}, 
-                status=400
-            )
-        if not order.items.exists():
-            return Response(
-                {'error': 'Cart is empty'}, 
-                status=400
-            )
-        order.status = 'new'
-        order.save()
+                status='new'
+            ).order_by('-created_at').first()
 
-        send_order_confirmation_email.delay(order.id)
+        except not order:
+            return Response(
+                {'error': 'No new orders found'}, 
+                status=400
+            )
+
+        order.status = 'confirmed'
+        order.save()
+        try:
+            send_order_confirmation_email.delay(order.id)
+        except Exception as e:
+            print('Celery error', e)
 
         return Response({'status': 'order confirmed'})
 
