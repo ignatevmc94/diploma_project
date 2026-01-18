@@ -20,6 +20,11 @@ urlpatterns = [
         auth_views.PasswordResetConfirmView.as_view(),
         name='password_reset_confirm',
     ),
+    path(
+        'password-reset-complete/',
+        auth_views.PasswordResetCompleteView.as_view(),
+        name='password_reset_complete',
+    ),
     path('cart/', CartView.as_view()),
     path('orders/', OrderListView.as_view()),
     path('order/create/', OrderCreateView.as_view()),
