@@ -12,6 +12,7 @@ from orders.models import Order, OrderItem
 from orders.serializers import OrderSerializer, OrderItemSerializer, OrderConfirmSerializer
 from orders.tasks import send_order_confirmation_email
 from accounts.serializers import RegisterSerializer, LoginSerializer
+from django.contrib.auth.forms import PasswordResetForm
 
 
 # Create your views here.
@@ -182,4 +183,31 @@ class LoginView(APIView):
         })
     
 
-    
+class PasswordResetAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+
+        if not email:
+            return Response(
+                {"error": "Email is required"},
+                status=400
+            )
+
+        form = PasswordResetForm(data={'email': email})
+
+        if form.is_valid():
+            form.save(
+                request=request,
+                use_https=False,
+                email_template_name='registration/password_reset_email.html'
+            )
+            return Response(
+                {"status": "password reset email sent"}
+            )
+
+        return Response(
+            {"error": "Invalid email"},
+            status=400
+        )

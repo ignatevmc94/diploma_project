@@ -1,8 +1,12 @@
+from django.http import HttpResponse
 from django.urls import path
 from .views import (CartView, ImportProductsView, OrderListView, 
                     ProductListView, OrderCreateView, OrderConfirmView, 
-                    RegisterView, LoginView)
-from rest_framework.authtoken.views import obtain_auth_token
+                    RegisterView, LoginView, PasswordResetAPIView)
+from django.contrib.auth import views as auth_views
+
+
+
 
 
 urlpatterns = [
@@ -10,6 +14,12 @@ urlpatterns = [
     path('products/', ProductListView.as_view()),
     path('login/', LoginView.as_view()),
     path('register/', RegisterView.as_view()),
+    path('password-reset/', PasswordResetAPIView.as_view()),
+    path(
+        'password-reset-confirm/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(),
+        name='password_reset_confirm',
+    ),
     path('cart/', CartView.as_view()),
     path('orders/', OrderListView.as_view()),
     path('order/create/', OrderCreateView.as_view()),
