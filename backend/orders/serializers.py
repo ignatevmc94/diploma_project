@@ -18,10 +18,15 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
+    total_price = serializers.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        read_only=True
+    )
 
     class Meta:
         model = Order
-        fields = ['id', 'status', 'items', 'created_at']
+        fields = ['id', 'status', 'items', 'total_price', 'created_at']
 
 
 class OrderConfirmSerializer(serializers.Serializer):

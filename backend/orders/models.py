@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from products.models import ProductInfo
+from django.db.models import Sum, F
 
 # Create your models here.
 
@@ -24,6 +25,14 @@ class Order(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def total_price(self):
+        return (self.items.aggregate(
+            total=Sum(
+                F('product_info__price') * F('quantity')
+            )
+        )['total'] or 0)
+
     def __str__(self):
         return f'Order {self.id} - {self.user.username} - {self.status}'
     
@@ -40,8 +49,12 @@ class OrderItem(models.Model):
     )
     quantity = models.PositiveIntegerField()
 
+    @property
+    def total_price(self):
+        return self.product_info.price * self.quantity
+
     def __str__(self):
-        return f'{self.product_info} x {self.quantity}'
+        return self.order.user.username
 
 
 
