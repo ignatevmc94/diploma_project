@@ -88,6 +88,26 @@ class CartView(APIView):
         return Response({'status': 'item added'})
 
 
+class CartItemDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, item_id):
+        try:
+            item = OrderItem.objects.get(
+                id=item_id,
+                order__user=request.user,
+                order__status='cart'
+            )
+        except OrderItem.DoesNotExist:
+            return Response(
+                {'error': 'Item not found in cart'},
+                status=404
+            )
+
+        item.delete()
+        return Response({'status': 'item deleted'})
+
+
 class OrderCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
