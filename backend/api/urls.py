@@ -2,7 +2,8 @@ from django.http import HttpResponse
 from django.urls import path
 from .views import (CartView, ImportProductsView, OrderListView, 
                     ProductListView, OrderCreateView, OrderConfirmView, 
-                    RegisterView, LoginView, PasswordResetAPIView)
+                    RegisterView, LoginView, PasswordResetAPIView,
+                    ContactView, ContactDetailView)
 from django.contrib.auth import views as auth_views
 
 
@@ -29,6 +30,7 @@ urlpatterns = [
     path('orders/', OrderListView.as_view()),
     path('order/create/', OrderCreateView.as_view()),
     path('order/confirm/', OrderConfirmView.as_view()),
-
+    path('contacts/', ContactView.as_view()),
+    path('contacts/<int:pk>/', ContactDetailView.as_view()),
 ]
 

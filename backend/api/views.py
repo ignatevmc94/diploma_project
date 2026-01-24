@@ -6,7 +6,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from importer.services import import_products_from_yaml
 from products.models import Product
+from contacts.models import Contact
 from products.serializers import ProductSerializer
+from contacts.serializers import ContactSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from orders.models import Order, OrderItem
 from orders.serializers import OrderSerializer, OrderItemSerializer, OrderConfirmSerializer
@@ -211,3 +213,60 @@ class PasswordResetAPIView(APIView):
             {"error": "Invalid email"},
             status=400
         )
+    
+
+class ContactView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        contacts = Contact.objects.filter(user=request.user)
+        serializer = ContactSerializer(contacts, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = ContactSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        Contact.objects.create(
+            user=request.user,
+            **serializer.validated_data
+        )
+
+        return Response({'status': 'contact created'}, status=201)
+    
+
+class ContactDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            contact = Contact.objects.get(id=pk, user=request.user)
+        except Contact.DoesNotExist:
+            return Response(
+                {'error': 'Contact not found'},
+                status=404
+            )
+        serializer = ContactSerializer(
+            contact,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({'status': 'contact updated'})
+
+    def delete(self, request, pk):
+        contact = Contact.objects.filter(
+            id=pk,
+            user=request.user
+        ).first()
+
+        if not contact:
+            return Response(
+                {'error': 'Contact not found'},
+                status=404
+            )
+
+        contact.delete()
+        return Response({'status': 'contact deleted'})
