@@ -11,11 +11,13 @@ from contacts.models import Contact
 from products.serializers import ProductDetailSerializer, ProductSerializer
 from contacts.serializers import ContactSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from .permissions import IsSupplier
 from orders.models import Order, OrderItem
-from orders.serializers import OrderSerializer, OrderItemSerializer, OrderConfirmSerializer
+from orders.serializers import OrderSerializer, OrderItemSerializer, OrderConfirmSerializer, SupplierOrderSerializer
 from orders.tasks import send_order_confirmation_email, send_order_to_admin
 from accounts.serializers import RegisterSerializer, LoginSerializer
 from django.contrib.auth.forms import PasswordResetForm
+
 
 
 # Create your views here.
@@ -314,3 +316,19 @@ class ContactDetailView(APIView):
 
         contact.delete()
         return Response({'status': 'contact deleted'})
+    
+
+class SupplierOrderListView(ListAPIView):
+    serializer_class = SupplierOrderSerializer
+    permission_classes = [IsAuthenticated, IsSupplier]
+
+    def get_queryset(self):
+        return (
+            OrderItem.objects.filter(
+                product_info__shop__name=self.request.user.username
+                ).select_related(
+                    'order',
+                    'product_info__product',
+                ).order_by('-order__created_at')
+        )
+    

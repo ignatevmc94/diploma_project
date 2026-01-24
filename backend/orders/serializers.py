@@ -47,3 +47,16 @@ class OrderConfirmSerializer(serializers.Serializer):
             )
 
         return data
+    
+
+class SupplierOrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    total_price = serializers.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        read_only=True
+    )
+
+    class Meta:
+        model = Order
+        fields = ['id', 'status', 'items', 'total_price', 'created_at']
