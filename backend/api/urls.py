@@ -3,7 +3,8 @@ from django.urls import path
 from .views import (CartView, ImportProductsView, OrderListView, 
                     ProductListView, OrderCreateView, OrderConfirmView, 
                     RegisterView, LoginView, PasswordResetAPIView,
-                    ContactView, ContactDetailView, CartItemDeleteView)
+                    ContactView, ContactDetailView, CartItemDeleteView,
+                    ProductDetailView)
 from django.contrib.auth import views as auth_views
 
 
@@ -13,6 +14,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('import/', ImportProductsView.as_view()),
     path('products/', ProductListView.as_view()),
+    path('products/<int:pk>/', ProductDetailView.as_view()),
     path('login/', LoginView.as_view()),
     path('register/', RegisterView.as_view()),
     path('password-reset/', PasswordResetAPIView.as_view()),

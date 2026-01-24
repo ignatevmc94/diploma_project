@@ -31,10 +31,9 @@ class ProductInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductInfo
         fields = [
-            'shop',
             'id',
+            'shop',
             'price',
-            'price_rrc',
             'quantity',
             'parameters',
         ]
@@ -43,6 +42,17 @@ class ProductInfoSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     product_infos = ProductInfoSerializer(many=True)
+
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'category', 'product_infos']
+
+
+class ProductDetailSerializer(serializers.ModelSerializer):
+    category = serializers.StringRelatedField()
+    product_infos = ProductInfoSerializer(
+        many=True
+        )
 
     class Meta:
         model = Product

@@ -1,13 +1,13 @@
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from importer.services import import_products_from_yaml
 from products.models import Product
 from contacts.models import Contact
-from products.serializers import ProductSerializer
+from products.serializers import ProductDetailSerializer, ProductSerializer
 from contacts.serializers import ContactSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from orders.models import Order, OrderItem
@@ -53,6 +53,11 @@ class ProductListView(ListAPIView):
 
         return qs.distinct()
     
+
+class ProductDetailView(RetrieveAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductDetailSerializer
+
 
 class CartView(APIView):
     permission_classes = [IsAuthenticated]
