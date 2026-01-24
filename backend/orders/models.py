@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from contacts.models import Contact
 from products.models import ProductInfo
 from django.db.models import Sum, F
 
@@ -24,6 +25,12 @@ class Order(models.Model):
         default='cart'
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    contact = models.ForeignKey(
+        Contact,
+        on_delete=models.PROTECT,
+        related_name='orders'
+    )
+
 
     @property
     def total_price(self):

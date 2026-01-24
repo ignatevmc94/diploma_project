@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.views import APIView
@@ -12,7 +13,7 @@ from contacts.serializers import ContactSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from orders.models import Order, OrderItem
 from orders.serializers import OrderSerializer, OrderItemSerializer, OrderConfirmSerializer
-from orders.tasks import send_order_confirmation_email
+from orders.tasks import send_order_confirmation_email, send_order_to_admin
 from accounts.serializers import RegisterSerializer, LoginSerializer
 from django.contrib.auth.forms import PasswordResetForm
 
@@ -138,28 +139,46 @@ class OrderConfirmView(APIView):
 
     def post(self, request):
         serializer = OrderConfirmSerializer(
-            data=request.data,
-            context={'request': request}
+            data=request.data
         )
         serializer.is_valid(raise_exception=True)
+
+        user = request.user
+        data = serializer.validated_data
 
         try:
             order = Order.objects.filter(
                 user=request.user,
                 status='new'
             ).order_by('-created_at').first()
-            
-            order.status = 'confirmed'
-            order.save()
-
+        
         except:
             return Response(
                 {'error': 'No new orders found'}, 
                 status=400
             )
             
+        if "contact_id" in data:
+            contact = get_object_or_404(
+                Contact,
+                id=data["contact_id"],
+                user=user
+            )
+
+        else:
+            contact_serializer = ContactSerializer(
+                data=data["contact"]
+            )
+            contact_serializer.is_valid(raise_exception=True)
+            contact = contact_serializer.save(user=user)
+
+        order.contact = contact
+        order.status = 'confirmed'
+        order.save()
+        
         try:
             send_order_confirmation_email.delay(order.id)
+            send_order_to_admin.delay(order.id)
         except Exception as e:
             print('Celery error', e)
 

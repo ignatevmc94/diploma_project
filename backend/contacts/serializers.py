@@ -13,3 +13,4 @@ class ContactSerializer(serializers.ModelSerializer):
             'house', 
             'apartment'
         ]
+
