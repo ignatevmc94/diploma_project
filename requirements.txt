@@ -24,6 +24,7 @@ pytz==2025.2
 PyYAML==6.0.3
 redis==7.1.0
 requests==2.31.0
+ruff==0.14.14
 six==1.17.0
 sqlparse==0.5.5
 typing_extensions==4.15.0
