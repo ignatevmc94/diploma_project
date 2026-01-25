@@ -4,6 +4,7 @@ from django.conf import settings
 from orders.models import Order
 
 
+
 @shared_task
 def send_order_confirmation_email(order_id):
     order = Order.objects.get(id=order_id)
@@ -35,22 +36,22 @@ def send_order_to_admin(order_id):
         else "not specified"
     )
     body = f"""
-Новый заказ №{order.id}
+        Новый заказ №{order.id}
 
-Клиент: {order.user.email}
+        Клиент: {order.user.email}
 
-Состав заказа:
-{chr(10).join(lines)}
+        Состав заказа:
+        {chr(10).join(lines)}
 
-Итого: {order.total_price}
+        Итого: {order.total_price}
 
-Контактные данные:
-Телефон: {contact.phone},
-Город: {contact.city},
-Улица: {contact.street},
-Дом: {contact.house},
-Квартира: {apartment}
-"""
+        Контактные данные:
+        Телефон: {contact.phone},
+        Город: {contact.city},
+        Улица: {contact.street},
+        Дом: {contact.house},
+        Квартира: {apartment}
+    """
 
     send_mail(
         subject=f"Накладная по заказу №{order.id}",

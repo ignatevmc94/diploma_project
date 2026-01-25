@@ -1,7 +1,5 @@
 from rest_framework import serializers
-
 from contacts.serializers import ContactSerializer
-from contacts.models import Contact
 from .models import Order, OrderItem
 from products.models import ProductInfo
 
@@ -64,7 +62,6 @@ class OrderSerializer(serializers.ModelSerializer):
         decimal_places=2, 
         read_only=True
     )
-
 
     class Meta:
         model = Order

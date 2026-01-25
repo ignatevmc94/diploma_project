@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.urls import path
 from .views import (CartView, ImportProductsView, OrderListView, 
                     ProductListView, OrderCreateView, OrderConfirmView, 

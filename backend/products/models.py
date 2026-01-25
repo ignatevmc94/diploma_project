@@ -1,6 +1,6 @@
 from django.db import models
 from shops.models import Shop, Category
-# Create your models here.
+
 
 
 class Product(models.Model):

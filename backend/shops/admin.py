@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Shop
 from products.models import ProductInfo
-# Register your models here.
+
 
 
 class ProductInfoInline(admin.TabularInline):

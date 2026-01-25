@@ -4,7 +4,6 @@ from contacts.models import Contact
 from products.models import ProductInfo
 from django.db.models import Sum, F
 
-# Create your models here.
 
 
 class Order(models.Model):

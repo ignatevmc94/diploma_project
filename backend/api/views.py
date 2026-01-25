@@ -7,11 +7,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from shops.models import Shop
 from importer.services import import_products_from_yaml
-from products.models import Product, ProductInfo
+from products.models import Product
 from contacts.models import Contact
 from products.serializers import ProductDetailSerializer, ProductSerializer
 from contacts.serializers import ContactSerializer
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from .permissions import IsSupplier
 from orders.models import Order, OrderItem
 from orders.serializers import (OrderListSerializer, OrderItemSerializer, OrderConfirmSerializer,
@@ -21,10 +21,6 @@ from orders.tasks import send_order_confirmation_email, send_order_to_admin
 from accounts.serializers import RegisterSerializer, LoginSerializer
 from django.contrib.auth.forms import PasswordResetForm
 
-
-
-
-# Create your views here.
 
 
 class ImportProductsView(APIView):
@@ -173,7 +169,7 @@ class OrderConfirmView(APIView):
                 status='new'
             ).order_by('-created_at').first()
             
-        except:
+        except Exception:
             return Response(
                 {'error': 'No new orders found'}, 
                 status=400
