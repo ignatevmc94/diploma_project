@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.urls import path
 from .views import (CartView, ImportProductsView, OrderListView, 
                     ProductListView, OrderCreateView, OrderConfirmView, 
-                    RegisterView, LoginView, PasswordResetAPIView,
+                    OrderView, RegisterView, LoginView, PasswordResetAPIView,
                     ContactView, ContactDetailView, CartItemDeleteView,
                     ProductDetailView, SupplierOrderListView,
                     SupplierAcceptionView)
@@ -32,6 +32,7 @@ urlpatterns = [
     path('orders/', OrderListView.as_view()),
     path('order/create/', OrderCreateView.as_view()),
     path('order/confirm/', OrderConfirmView.as_view()),
+    path('order/<int:pk>/', OrderView.as_view()),
     path('contacts/', ContactView.as_view()),
     path('contacts/<int:pk>/', ContactDetailView.as_view()),
     path('supplier/orders/', SupplierOrderListView.as_view()),

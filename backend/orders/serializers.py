@@ -6,24 +6,46 @@ from .models import Order, OrderItem
 from products.models import ProductInfo
 
 
+class ProductInfoSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name')
+    shop_name = serializers.CharField(source='shop.name')
+
+    class Meta:
+        model = ProductInfo
+        fields = ['id', 'product_name', 'shop_name', 'quantity', 'price', 'price_rrc']
+
+
+
 class OrderItemSerializer(serializers.ModelSerializer):
-    product_info = serializers.PrimaryKeyRelatedField(
-        queryset=ProductInfo.objects.all()
-    )
+    product_info = ProductInfoSerializer(read_only=True)
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product_info', 'quantity']
+        fields = ['id', 'product_info']
 
-    
 
-class OrderSerializer(serializers.ModelSerializer):
+class OrderListSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     total_price = serializers.DecimalField(
         max_digits=10, 
         decimal_places=2, 
         read_only=True
     )
+
+    class Meta:
+        model = Order
+        fields = ['id', 'status', 'items', 'total_price', 'created_at']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    total_price = serializers.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        read_only=True
+    )
+
 
     class Meta:
         model = Order

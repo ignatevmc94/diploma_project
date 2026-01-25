@@ -14,8 +14,8 @@ from contacts.serializers import ContactSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .permissions import IsSupplier
 from orders.models import Order, OrderItem
-from orders.serializers import (OrderSerializer, OrderItemSerializer, OrderConfirmSerializer,
-                                SupplierOrderSerializer, SupplierAcceptionSerializer)
+from orders.serializers import (OrderListSerializer, OrderItemSerializer, OrderConfirmSerializer,
+                                SupplierOrderSerializer, SupplierAcceptionSerializer, OrderSerializer)
 from orders.tasks import send_order_confirmation_email, send_order_to_admin
 from accounts.serializers import RegisterSerializer, LoginSerializer
 from django.contrib.auth.forms import PasswordResetForm
@@ -73,7 +73,7 @@ class CartView(APIView):
             user=request.user,
             status='cart'
         )
-        serializer = OrderSerializer(cart)
+        serializer = OrderListSerializer(cart)
         return Response(serializer.data)
     
     def post(self, request):
@@ -211,7 +211,7 @@ class OrderConfirmView(APIView):
 
 
 class OrderListView(ListAPIView):
-    serializer_class = OrderSerializer
+    serializer_class = OrderListSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -219,6 +219,16 @@ class OrderListView(ListAPIView):
             user=self.request.user
         ).exclude(status='cart')
     
+
+class OrderView(RetrieveAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Order.objects.filter(
+            user=self.request.user).filter(id=self.kwargs['pk']
+        ).exclude(status='cart')
+
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
