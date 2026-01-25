@@ -410,46 +410,56 @@ class SupplierAcceptionView(APIView):
 
 class SupplierOrderStatusView(APIView):
     permission_classes = [IsAuthenticated, IsSupplier]
-    serializer_class = SupplierOrderDetailSerializer
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get("pk")
 
-        order = Order.objects.filter(
-            id=pk,
-            items__product_info__shop__name=request.user.username
-        ).exclude(status="cart").distinct().first()
+        qs = OrderItem.objects.filter(
+            order_id=pk,
+            product_info__shop__name=request.user.username
+        ).exclude(order__status="cart")
 
-        if not order:
+        if not qs.exists():
             return Response({"error": "Order not found"}, status=404)
 
+        # если все позиции поставщика done -> done, иначе confirmed
+        supplier_status = "done" if not qs.exclude(status="done").exists() else "confirmed"
+
         return Response({
-            "id": order.id,
-            "status": order.status
+            "order_id": pk,
+            "supplier_status": supplier_status
         })
 
-
     def post(self, request, *args, **kwargs):
-        item_id = kwargs.get("item_id")
+        pk = kwargs.get("pk")
 
         serializer = SupplierOrderStatusSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        item = OrderItem.objects.filter(
-            id=item_id,
+        new_status = serializer.validated_data["status"]
+
+        qs = OrderItem.objects.filter(
+            order_id=pk,
             product_info__shop__name=request.user.username
-        ).exclude(order__status="cart").first()
+        ).exclude(order__status="cart")
 
-        if not item:
-            return Response({"error": "Order item not found"}, status=404)
+        if not qs.exists():
+            return Response({"error": "Order not found"}, status=404)
 
-        item.status = serializer.validated_data["status"]
-        item.save()
+        updated_count = qs.update(status=new_status)
+
+        order = Order.objects.filter(id=pk).exclude(status="cart").first()
+        if order:
+            all_items_done = not order.items.exclude(status="done").exists()
+            if all_items_done:
+                order.status = "done"
+                order.save()
 
         return Response({
-            "id": item.id,
-            "status": item.status,
-            "message": "Item status updated"
+            "order_id": pk,
+            "supplier_status": new_status,
+            "updated_items": updated_count,
+            "message": "Supplier items status updated"
         })
 
 

@@ -32,11 +32,12 @@ class OrderItemDetailSerializer(serializers.ModelSerializer):
         decimal_places=2,
         read_only=True
     )
+    status = serializers.CharField(read_only=True)
     total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'shop', 'product_name', 'quantity', 'price', 'total_price']
+        fields = ['id', 'shop', 'product_name', 'quantity', 'price', 'total_price', 'status']
 
     def get_total_price(self, instance):
         return instance.product_info.price * instance.quantity
@@ -123,12 +124,13 @@ class SupplierOrderDetailSerializer(serializers.ModelSerializer):
     items = serializers.SerializerMethodField()
     contact = ContactSerializer(read_only=True)
     total_price = serializers.SerializerMethodField()
+    supplier_status = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = [
             'id',
-            'status',
+            'supplier_status',
             'customer',
             'customer_email',
             'items',
@@ -137,6 +139,18 @@ class SupplierOrderDetailSerializer(serializers.ModelSerializer):
             'created_at'
         ]
 
+    def get_supplier_status(self, instance):
+        request = self.context.get("request")
+        supplier_shop_name = request.user.username
+
+        qs = instance.items.filter(
+            product_info__shop__name=supplier_shop_name
+        )
+
+        if not qs.exists():
+            return None
+        return "done" if not qs.exclude(status="done").exists() else "confirmed"
+    
     def get_items(self, instance):
         request = self.context.get("request")
         if not request:
