@@ -136,3 +136,7 @@ class SupplierOrderDetailSerializer(serializers.ModelSerializer):
 
 class SupplierAcceptionSerializer(serializers.Serializer):
     is_accepting_orders = serializers.BooleanField()
+
+
+class SupplierOrderStatusSerializer(serializers.Serializer):
+    status = serializers.CharField()

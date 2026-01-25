@@ -15,7 +15,8 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .permissions import IsSupplier
 from orders.models import Order, OrderItem
 from orders.serializers import (OrderListSerializer, OrderItemSerializer, OrderConfirmSerializer,
-                                SupplierOrderDetailSerializer, OrderSerializer, SupplierAcceptionSerializer)
+                                SupplierOrderDetailSerializer, OrderSerializer, SupplierAcceptionSerializer,
+                                SupplierOrderStatusSerializer)
 from orders.tasks import send_order_confirmation_email, send_order_to_admin
 from accounts.serializers import RegisterSerializer, LoginSerializer
 from django.contrib.auth.forms import PasswordResetForm
@@ -401,6 +402,56 @@ class SupplierAcceptionView(APIView):
                 )
             }
         )
+
+class SupplierOrderStatusView(APIView):
+    permission_classes = [IsAdminUser, IsSupplier]
+    serializer_class = SupplierOrderDetailSerializer
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+
+        order = Order.objects.filter(
+            id=pk,
+            items__product_info__shop__name=request.user.username
+        ).exclude(status="cart").distinct().first()
+
+        if not order:
+            return Response({"error": "Order not found"}, status=404)
+
+        return Response({
+            "id": order.id,
+            "status": order.status
+        })
+
+
+    def post(self, request, pk):
+        serializer = SupplierOrderStatusSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        order = Order.objects.filter(
+            id=pk,
+            items__product_info__shop__name=request.user.username
+        ).exclude(status="cart").distinct().first()
+
+        if not order:
+            return Response({"error": "Order not found"}, status=404)
+
+        new_status = serializer.validated_data["status"]
+
+        order.status = new_status
+        order.save()
+
+        return Response({
+            "id": order.id,
+            "status": order.status,
+            "message": "Order is done"
+        })
+
+
+
+
+        
+
 
 
     
