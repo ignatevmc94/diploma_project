@@ -89,7 +89,6 @@ class OrderConfirmSerializer(serializers.Serializer):
         return data
     
 
-
 class SupplierOrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(
         source='product_info.product.name',
@@ -133,3 +132,7 @@ class SupplierOrderDetailSerializer(serializers.ModelSerializer):
         for item in instance.items.select_related("product_info"):
             total += item.product_info.price * item.quantity
         return total
+    
+
+class SupplierAcceptionSerializer(serializers.Serializer):
+    is_accepting_orders = serializers.BooleanField()

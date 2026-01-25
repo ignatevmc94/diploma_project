@@ -15,7 +15,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .permissions import IsSupplier
 from orders.models import Order, OrderItem
 from orders.serializers import (OrderListSerializer, OrderItemSerializer, OrderConfirmSerializer,
-                                SupplierOrderDetailSerializer, OrderSerializer)
+                                SupplierOrderDetailSerializer, OrderSerializer, SupplierAcceptionSerializer)
 from orders.tasks import send_order_confirmation_email, send_order_to_admin
 from accounts.serializers import RegisterSerializer, LoginSerializer
 from django.contrib.auth.forms import PasswordResetForm
@@ -368,39 +368,39 @@ class SupplierOrderListView(ListAPIView):
         )
     
 
-# class SupplierAcceptionView(APIView):
-#     permission_classes = [IsAuthenticated, IsSupplier]
+class SupplierAcceptionView(APIView):
+    permission_classes = [IsAuthenticated, IsSupplier]
     
     
-#     def post(self, request):
-#         serializer = SupplierAcceptionSerializer(data=request.data)  
-#         serializer.is_valid(raise_exception=True)
+    def post(self, request):
+        serializer = SupplierAcceptionSerializer(data=request.data)  
+        serializer.is_valid(raise_exception=True)
 
-#         shop = Shop.objects.filter(
-#                 name=self.request.user.username
-#             ).first()
+        shop = Shop.objects.filter(
+                name=self.request.user.username
+            ).first()
         
-#         if not shop:
-#             return Response(
-#                 {'error': 'Shop not found'},
-#                 status=404
-#             )
+        if not shop:
+            return Response(
+                {'error': 'Shop not found'},
+                status=404
+            )
         
-#         shop.is_accepting_orders = serializer.validated_data[
-#             'is_accepting_orders'
-#             ]
-#         shop.save()
+        shop.is_accepting_orders = serializer.validated_data[
+            'is_accepting_orders'
+            ]
+        shop.save()
 
-#         return Response(
-#             {
-#                 "is_accepting_orders": shop.is_accepting_orders,
-#                 "message": (
-#                     "supplier is now accepting orders"
-#                     if shop.is_accepting_orders
-#                     else "supplier is not accepting orders temporarily"
-#                 )
-#             }
-#         )
+        return Response(
+            {
+                "is_accepting_orders": shop.is_accepting_orders,
+                "message": (
+                    "supplier is now accepting orders"
+                    if shop.is_accepting_orders
+                    else "supplier is not accepting orders temporarily"
+                )
+            }
+        )
 
 
     
