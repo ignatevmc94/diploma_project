@@ -10,6 +10,7 @@ class Shop(models.Model):
     name = models.CharField(max_length=255)
     url = models.URLField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    is_accepting_orders = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

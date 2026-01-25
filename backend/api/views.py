@@ -5,18 +5,21 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from shops.models import Shop
 from importer.services import import_products_from_yaml
-from products.models import Product
+from products.models import Product, ProductInfo
 from contacts.models import Contact
 from products.serializers import ProductDetailSerializer, ProductSerializer
 from contacts.serializers import ContactSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .permissions import IsSupplier
 from orders.models import Order, OrderItem
-from orders.serializers import OrderSerializer, OrderItemSerializer, OrderConfirmSerializer, SupplierOrderSerializer
+from orders.serializers import (OrderSerializer, OrderItemSerializer, OrderConfirmSerializer,
+                                SupplierOrderSerializer, SupplierAcceptionSerializer)
 from orders.tasks import send_order_confirmation_email, send_order_to_admin
 from accounts.serializers import RegisterSerializer, LoginSerializer
 from django.contrib.auth.forms import PasswordResetForm
+
 
 
 
@@ -89,6 +92,15 @@ class CartView(APIView):
                 'quantity': serializer.validated_data['quantity']
             }
         )
+
+        supplier = item.product_info.shop
+
+        if not supplier.is_accepting_orders:
+            return Response(
+                {'error': 'This shop is not accepting orders at the moment'},
+                status=400
+            )
+
         if not created:
             item.quantity += serializer.validated_data['quantity']
             item.save()
@@ -153,7 +165,7 @@ class OrderConfirmView(APIView):
                 user=request.user,
                 status='new'
             ).order_by('-created_at').first()
-        
+            
         except:
             return Response(
                 {'error': 'No new orders found'}, 
@@ -173,6 +185,17 @@ class OrderConfirmView(APIView):
             )
             contact_serializer.is_valid(raise_exception=True)
             contact = contact_serializer.save(user=user)
+
+        items = order.items.select_related('product_info__shop')
+        for item in items:
+            shop = item.product_info.shop
+            if not shop.is_accepting_orders:
+                return Response(
+                    {
+                        'error': f'Shop {shop.name} is not accepting orders at the moment'
+                    },
+                    status=400
+                )
 
         order.contact = contact
         order.status = 'confirmed'
@@ -331,4 +354,41 @@ class SupplierOrderListView(ListAPIView):
                     'product_info__product',
                 ).order_by('-order__created_at')
         )
+
+
+class SupplierAcceptionView(APIView):
+    permission_classes = [IsAuthenticated, IsSupplier]
+    
+    
+    def post(self, request):
+        serializer = SupplierAcceptionSerializer(data=request.data)  
+        serializer.is_valid(raise_exception=True)
+
+        shop = Shop.objects.filter(
+                name=self.request.user.username
+            ).first()
+        
+        if not shop:
+            return Response(
+                {'error': 'Shop not found'},
+                status=404
+            )
+        
+        shop.is_accepting_orders = serializer.validated_data[
+            'is_accepting_orders'
+            ]
+        shop.save()
+
+        return Response(
+            {
+                "is_accepting_orders": shop.is_accepting_orders,
+                "message": (
+                    "supplier is now accepting orders"
+                    if shop.is_accepting_orders
+                    else "supplier is not accepting orders temporarily"
+                )
+            }
+        )
+
+
     

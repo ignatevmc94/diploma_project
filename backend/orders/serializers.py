@@ -60,3 +60,7 @@ class SupplierOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'status', 'items', 'total_price', 'created_at']
+
+
+class SupplierAcceptionSerializer(serializers.Serializer):
+    is_accepting_orders = serializers.BooleanField()

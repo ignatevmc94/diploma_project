@@ -28,7 +28,9 @@ class Order(models.Model):
     contact = models.ForeignKey(
         Contact,
         on_delete=models.PROTECT,
-        related_name='orders'
+        related_name='orders',
+        null=True,
+        blank=True
     )
 
 
