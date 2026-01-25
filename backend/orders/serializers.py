@@ -119,18 +119,55 @@ class SupplierOrderDetailSerializer(serializers.ModelSerializer):
         source='user.email',
         read_only=True
     )
-    items = OrderItemDetailSerializer(many=True, read_only=True)
+
+    items = serializers.SerializerMethodField()
     contact = ContactSerializer(read_only=True)
     total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ['id', 'status', 'customer', 'customer_email', 'items', 'contact', 'total_price', 'created_at']
-    
+        fields = [
+            'id',
+            'status',
+            'customer',
+            'customer_email',
+            'items',
+            'contact',
+            'total_price',
+            'created_at'
+        ]
+
+    def get_items(self, instance):
+        request = self.context.get("request")
+        if not request:
+            return []
+
+        supplier_shop_name = request.user.username
+
+        qs = instance.items.filter(
+            product_info__shop__name=supplier_shop_name
+        ).select_related(
+            "product_info__product",
+            "product_info__shop",
+        )
+
+        return OrderItemDetailSerializer(qs, many=True).data
+
     def get_total_price(self, instance):
+        request = self.context.get("request")
+        if not request:
+            return 0
+
+        supplier_shop_name = request.user.username
+
         total = 0
-        for item in instance.items.select_related("product_info"):
+        qs = instance.items.filter(
+            product_info__shop__name=supplier_shop_name
+        ).select_related("product_info")
+
+        for item in qs:
             total += item.product_info.price * item.quantity
+
         return total
     
 
@@ -139,4 +176,5 @@ class SupplierAcceptionSerializer(serializers.Serializer):
 
 
 class SupplierOrderStatusSerializer(serializers.Serializer):
-    status = serializers.CharField()
+    status = serializers.ChoiceField(choices=["confirmed", "done"])
+

@@ -47,16 +47,30 @@ class Order(models.Model):
     
 
 class OrderItem(models.Model):
+    STATUS_CHOICES = (
+        ('cart', 'Корзина'),
+        ('new', 'Новый'),
+        ('confirmed', 'Подтвержден'),
+        ('done', 'Выполнен'),
+    )
+
     order = models.ForeignKey(
         Order, 
-        on_delete=models.CASCADE, 
-        related_name='items'
+        related_name='items',
+        on_delete=models.CASCADE
+        
     )
     product_info = models.ForeignKey(
         ProductInfo, 
         on_delete=models.CASCADE
     )
     quantity = models.PositiveIntegerField()
+
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES, 
+        default='new'
+    )
 
     @property
     def total_price(self):

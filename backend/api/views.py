@@ -207,6 +207,7 @@ class OrderConfirmView(APIView):
         order.contact = contact
         order.status = 'confirmed'
         order.save()
+        order.items.update(status="confirmed")
         
         try:
             send_order_confirmation_email.delay(order.id)
@@ -408,7 +409,7 @@ class SupplierAcceptionView(APIView):
         )
 
 class SupplierOrderStatusView(APIView):
-    permission_classes = [IsAdminUser, IsSupplier]
+    permission_classes = [IsAuthenticated, IsSupplier]
     serializer_class = SupplierOrderDetailSerializer
 
     def get(self, request, *args, **kwargs):
@@ -428,27 +429,27 @@ class SupplierOrderStatusView(APIView):
         })
 
 
-    def post(self, request, pk):
+    def post(self, request, *args, **kwargs):
+        item_id = kwargs.get("item_id")
+
         serializer = SupplierOrderStatusSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        order = Order.objects.filter(
-            id=pk,
-            items__product_info__shop__name=request.user.username
-        ).exclude(status="cart").distinct().first()
+        item = OrderItem.objects.filter(
+            id=item_id,
+            product_info__shop__name=request.user.username
+        ).exclude(order__status="cart").first()
 
-        if not order:
-            return Response({"error": "Order not found"}, status=404)
+        if not item:
+            return Response({"error": "Order item not found"}, status=404)
 
-        new_status = serializer.validated_data["status"]
-
-        order.status = new_status
-        order.save()
+        item.status = serializer.validated_data["status"]
+        item.save()
 
         return Response({
-            "id": order.id,
-            "status": order.status,
-            "message": "Order is done"
+            "id": item.id,
+            "status": item.status,
+            "message": "Item status updated"
         })
 
 
