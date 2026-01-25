@@ -4,6 +4,7 @@ from django.conf import settings
 
 
 class Contact(models.Model):
+    # Модель контактов пользователя
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
