@@ -8,10 +8,25 @@ def import_products_from_yaml(file_path, user):
     with open(file_path, encoding='utf-8') as f:
         data = yaml.safe_load(f)
 
-    shop, _ = Shop.objects.get_or_create(
-        name=data['shop'],
-        defaults={'user': user}
-    )
+    yaml_shop_name = data.get("shop")
+    if not yaml_shop_name:
+        raise ValueError("YAML must contain 'shop' field")
+    
+    shop = Shop.objects.filter(user=user).first()
+
+    if not shop:
+        if Shop.objects.filter(name=yaml_shop_name).exclude(user=user).exists():
+            raise ValueError("Shop with this name already exists and belongs to another user")
+        
+        shop = Shop.objects.create(
+            name=yaml_shop_name,
+            user=user
+        )
+
+    if shop.name != yaml_shop_name:
+        raise ValueError(
+            f"You can import only your shop '{shop.name}', not '{yaml_shop_name}'"
+        )
 
     categories_map = {}
     for category_data in data['categories']:
@@ -51,4 +66,7 @@ def import_products_from_yaml(file_path, user):
                 parameter=parameter,
                 defaults={'value': str(param_value)}
             )
-
+    return {
+        "status": "import completed",
+        "shop": shop.name,
+    }

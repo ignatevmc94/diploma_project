@@ -28,19 +28,23 @@ from django.contrib.auth.forms import PasswordResetForm
 
 
 class ImportProductsView(APIView):
-    permission_classes = [IsSupplier]
+    permission_classes = [IsAuthenticated, IsSupplier]
 
     def post(self, request):
-        file_path = request.data.get('file_path')
+        file_path = request.data.get("file_path")
 
         if not file_path:
-            return Response(
-                {'error': 'file_path is required'}, 
-                status=400
+            return Response({"error": "file_path is required"}, status=400)
+
+        try:
+            result = import_products_from_yaml(
+                file_path=file_path,
+                user=request.user
             )
-        
-        import_products_from_yaml(file_path, user = request.user)
-        return Response({'status': 'import started'})
+        except ValueError as e:
+            return Response({"error": str(e)}, status=400)
+
+        return Response(result, status=200)
         
 
 class ProductListView(ListAPIView):
