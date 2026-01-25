@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import User
 
 # Create your models here.
 
@@ -11,6 +12,7 @@ class Shop(models.Model):
     url = models.URLField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_accepting_orders = models.BooleanField(default=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shops')
 
     def __str__(self):
         return self.name

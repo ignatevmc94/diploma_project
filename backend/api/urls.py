@@ -5,7 +5,7 @@ from .views import (CartView, ImportProductsView, OrderListView,
                     OrderView, RegisterView, LoginView, PasswordResetAPIView,
                     ContactView, ContactDetailView, CartItemDeleteView,
                     ProductDetailView, SupplierOrderListView,
-                    SupplierAcceptionView)
+                    )
 from django.contrib.auth import views as auth_views
 
 
@@ -36,6 +36,6 @@ urlpatterns = [
     path('contacts/', ContactView.as_view()),
     path('contacts/<int:pk>/', ContactDetailView.as_view()),
     path('supplier/orders/', SupplierOrderListView.as_view()),
-    path('supplier/acception/', SupplierAcceptionView.as_view()),
+    # path('supplier/acception/', SupplierAcceptionView.as_view()),
 ]
 

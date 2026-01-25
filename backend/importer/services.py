@@ -4,12 +4,13 @@ from shops.models import Shop, Category
 from products.models import Product, ProductInfo, Parameter, ProductParameter
 
 
-def import_products_from_yaml(file_path):
+def import_products_from_yaml(file_path, user):
     with open(file_path, encoding='utf-8') as f:
         data = yaml.safe_load(f)
 
     shop, _ = Shop.objects.get_or_create(
-        name=data['shop']
+        name=data['shop'],
+        defaults={'user': user}
     )
 
     categories_map = {}
