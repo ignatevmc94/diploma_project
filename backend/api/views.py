@@ -36,10 +36,13 @@ from accounts.serializers import LoginSerializer, RegisterSerializer
 from .permissions import IsSupplier
 
 
-# ----------------------------
-# Импорт товаров (только поставщик)
-# ----------------------------
 class ImportProductsView(APIView):
+    """
+    Импорт товаров поставщиком из YAML-файла.
+
+    Доступно только аутентифицированным пользователям с ролью поставщика.
+    Принимает путь к файлу и обновляет ассортимент магазина пользователя.
+    """
     permission_classes = [IsAuthenticated, IsSupplier]
 
     def post(self, request):
@@ -59,10 +62,12 @@ class ImportProductsView(APIView):
         return Response(result, status=200)
 
 
-# ----------------------------
-# Товары (публичный список)
-# ----------------------------
 class ProductListView(ListAPIView):
+    """
+    Публичный список товаров.
+
+    Поддерживает фильтрацию по магазину и категории через query-параметры.
+    """
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
 
@@ -81,19 +86,25 @@ class ProductListView(ListAPIView):
         return qs.distinct()
 
 
-# ----------------------------
-# Товар (публичные детали)
-# ----------------------------
 class ProductDetailView(RetrieveAPIView):
+    """
+    Публичные детали товара.
+
+    Возвращает подробную информацию о конкретном товаре.
+    """
     queryset = Product.objects.all()
     serializer_class = ProductDetailSerializer
     permission_classes = [AllowAny]
 
 
-# ----------------------------
-# Корзина пользователя
-# ----------------------------
 class CartView(APIView):
+    """
+    Корзина пользователя.
+
+    GET — получить текущую корзину.
+    POST — добавить товар в корзину.
+    Требует авторизации.
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -130,10 +141,13 @@ class CartView(APIView):
         return Response({"status": "item added"})
 
 
-# ----------------------------
-# Удаление позиции из корзины
-# ----------------------------
 class CartItemDeleteView(APIView):
+    """
+    Удаление позиции из корзины.
+
+    Удаляет конкретный товар из корзины пользователя.
+    Требует авторизации.
+    """
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, item_id):
@@ -150,10 +164,13 @@ class CartItemDeleteView(APIView):
         return Response({"status": "item deleted"})
 
 
-# ----------------------------
-# Создать заказ (cart -> new)
-# ----------------------------
 class OrderCreateView(APIView):
+    """
+    Создание заказа из корзины.
+
+    Переводит заказ пользователя из статуса cart в статус new.
+    Требует авторизации.
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -168,10 +185,14 @@ class OrderCreateView(APIView):
         return Response({"status": "Order created"})
 
 
-# ----------------------------
-# Подтвердить заказ (new -> confirmed)
-# ----------------------------
 class OrderConfirmView(APIView):
+    """
+    Подтверждение заказа пользователем.
+
+    Привязывает контактные данные, проверяет доступность магазинов
+    и переводит заказ в статус confirmed.
+    Требует авторизации.
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -224,10 +245,13 @@ class OrderConfirmView(APIView):
         return Response({"status": "order confirmed"})
 
 
-# ----------------------------
-# Заказы пользователя
-# ----------------------------
 class OrderListView(ListAPIView):
+    """
+    Список заказов пользователя.
+
+    Возвращает все заказы пользователя, кроме корзины.
+    Требует авторизации.
+    """
     serializer_class = OrderListSerializer
     permission_classes = [IsAuthenticated]
 
@@ -236,6 +260,12 @@ class OrderListView(ListAPIView):
 
 
 class OrderView(RetrieveAPIView):
+    """
+    Детали заказа пользователя.
+
+    Возвращает подробную информацию по одному заказу.
+    Требует авторизации.
+    """
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
@@ -246,10 +276,13 @@ class OrderView(RetrieveAPIView):
         )
 
 
-# ----------------------------
-# Регистрация / логин
-# ----------------------------
 class RegisterView(APIView):
+    """
+    Регистрация нового пользователя.
+
+    Создаёт пользователя на основе переданных данных.
+    Доступно без авторизации.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -265,6 +298,11 @@ class RegisterView(APIView):
 
 
 class LoginView(APIView):
+    """
+    Авторизация пользователя.
+
+    Проверяет учетные данные и возвращает токен доступа.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -277,10 +315,12 @@ class LoginView(APIView):
         return Response({"token": token.key})
 
 
-# ----------------------------
-# Сброс пароля
-# ----------------------------
 class PasswordResetAPIView(APIView):
+    """
+    Сброс пароля пользователя.
+
+    Отправляет письмо для восстановления пароля на указанный email.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -302,10 +342,14 @@ class PasswordResetAPIView(APIView):
         return Response({"error": "Invalid email"}, status=400)
 
 
-# ----------------------------
-# Контакты (адреса доставки)
-# ----------------------------
 class ContactView(APIView):
+    """
+    Контакты пользователя.
+
+    GET — список контактов.
+    POST — создание нового контакта.
+    Требует авторизации.
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -322,6 +366,13 @@ class ContactView(APIView):
 
 
 class ContactDetailView(APIView):
+    """
+    Управление конкретным контактом пользователя.
+
+    PATCH — обновление контактных данных.
+    DELETE — удаление контакта.
+    Требует авторизации.
+    """
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
@@ -346,10 +397,13 @@ class ContactDetailView(APIView):
         return Response({"status": "contact deleted"})
 
 
-# ----------------------------
-# Заказы поставщика (только его позиции)
-# ----------------------------
 class SupplierOrderListView(ListAPIView):
+    """
+    Список заказов поставщика.
+
+    Возвращает заказы, содержащие товары магазинов текущего поставщика.
+    Требует роль поставщика.
+    """
     serializer_class = SupplierOrderDetailSerializer
     permission_classes = [IsAuthenticated, IsSupplier]
 
@@ -365,10 +419,13 @@ class SupplierOrderListView(ListAPIView):
         )
 
 
-# ----------------------------
-# Поставщик включает/выключает прием заказов
-# ----------------------------
 class SupplierAcceptionView(APIView):
+    """
+    Управление приемом заказов поставщиком.
+
+    Позволяет включать или отключать прием заказов для магазина пользователя.
+    Требует роль поставщика.
+    """
     permission_classes = [IsAuthenticated, IsSupplier]
 
     def post(self, request):
@@ -396,10 +453,20 @@ class SupplierAcceptionView(APIView):
         )
 
 
-# ----------------------------
-# Поставщик меняет статус своих позиций в заказе
-# ----------------------------
 class SupplierOrderStatusView(APIView):
+    """
+    Управление статусами позиций заказа со стороны поставщика.
+
+    GET — возвращает агрегированный статус заказа для текущего поставщика
+    (confirmed или done) на основе статусов его позиций.
+
+    POST — обновляет статус всех позиций текущего поставщика в указанном заказе.
+    Если после обновления все позиции заказа имеют статус done,
+    заказ автоматически переводится в статус done.
+
+    Работает только с заказами, не находящимися в статусе cart.
+    Требует аутентификацию и роль поставщика.
+    """
     permission_classes = [IsAuthenticated, IsSupplier]
 
     def get(self, request, *args, **kwargs):
