@@ -8,7 +8,6 @@ from .views import (CartView, ImportProductsView, OrderListView,
 from django.contrib.auth import views as auth_views
 
 
-
 urlpatterns = [
     path('import/', ImportProductsView.as_view()),
     path('products/', ProductListView.as_view()),
