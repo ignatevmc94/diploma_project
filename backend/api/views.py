@@ -110,7 +110,9 @@ class CartView(APIView):
         item, created = OrderItem.objects.get_or_create(
             order=cart,
             product_info=serializer.validated_data["product_info"],
-            defaults={"quantity": serializer.validated_data["quantity"]},
+            defaults={"quantity": serializer.validated_data["quantity"],
+                      "status": "cart"
+                      },
         )
 
         supplier_shop = item.product_info.shop
