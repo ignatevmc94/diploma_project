@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'api',
 
     'social_django',
+    'easy_thumbnails',
 ]
 
 MIDDLEWARE = [
@@ -186,3 +187,13 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'GOOGLE_CLIENT_SECRET'
 
 SOCIAL_AUTH_GITHUB_KEY = 'GITHUB_CLIENT_ID'
 SOCIAL_AUTH_GITHUB_SECRET = 'GITHUB_CLIENT_SECRET'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+THUMBNAIL_ALIASES = {
+    '': {
+        'avatar': {'size': (100, 100), 'crop': True},
+        'product_preview': {'size': (300, 300), 'crop': True},
+    },
+}

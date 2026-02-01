@@ -48,10 +48,11 @@ class ProductSerializer(serializers.ModelSerializer):
     # сериализатор списка товаров (категория + предложения по магазинам)
     category = CategorySerializer()
     product_infos = ProductInfoSerializer(many=True)
+    image = serializers.ImageField(read_only=True)
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'category', 'product_infos']
+        fields = ['id', 'name', 'category', 'product_infos', 'image']
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):

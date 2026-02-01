@@ -1,5 +1,6 @@
 from django.db import models
 from shops.models import Shop, Category
+from easy_thumbnails.fields import ThumbnailerImageField
 
 
 
@@ -9,6 +10,11 @@ class Product(models.Model):
         Category,
         related_name='products', 
         on_delete=models.CASCADE
+    )
+    image = ThumbnailerImageField(
+        upload_to='products/',
+        blank=True,
+        null=True,
     )
 
     def __str__(self):
