@@ -8,6 +8,12 @@ from .tasks import generate_product_thumbnails
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
+    fields = (
+        'name',
+        'category',
+        'image',
+    )
+
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
 
