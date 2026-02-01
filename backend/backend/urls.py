@@ -34,6 +34,7 @@ urlpatterns = [
          name='swagger-ui',
     ),
     path('auth/', include('social_django.urls', namespace='social')),
+    path('silk/', include('silk.urls', namespace='silk')),
 
 ]
 
