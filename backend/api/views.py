@@ -518,3 +518,15 @@ class SupplierOrderStatusView(APIView):
                 "message": "Supplier items status updated",
             }
         )
+
+class SentryTestErrorView(APIView):
+    """
+    Тестовый endpoint для проверки интеграции Sentry.
+
+    Намеренно выбрасывает исключение.
+    Используется только для демонстрации перехвата ошибок.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        raise RuntimeError("Sentry test error")

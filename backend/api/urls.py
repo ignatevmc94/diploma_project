@@ -4,7 +4,7 @@ from .views import (CartView, ImportProductsView, OrderListView,
                     OrderView, RegisterView, LoginView, PasswordResetAPIView,
                     ContactView, ContactDetailView, CartItemDeleteView,
                     ProductDetailView, SupplierOrderListView,
-                    SupplierAcceptionView, SupplierOrderStatusView)
+                    SupplierAcceptionView, SupplierOrderStatusView, SentryTestErrorView)
 from django.contrib.auth import views as auth_views
 
 
@@ -36,5 +36,6 @@ urlpatterns = [
     path('supplier/orders/', SupplierOrderListView.as_view()),
     path('supplier/orders/<int:pk>/status/', SupplierOrderStatusView.as_view()),
     path('supplier/acception/', SupplierAcceptionView.as_view()),
+    path('sentry-debug/', SentryTestErrorView.as_view()),
 ]
 
